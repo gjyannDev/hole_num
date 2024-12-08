@@ -23,6 +23,15 @@ DARK_GREY = (50, 50, 50)
 HOLE_ONE = pygame.image.load(os.path.join("assets/images", "character-one.png"))
 HOLE_ONE = pygame.transform.scale(HOLE_ONE, (30 * 2, 30 * 2))
 
+HOLE_TWO = pygame.image.load(os.path.join("assets/images", "character-two.png"))
+HOLE_TWO = pygame.transform.scale(HOLE_TWO, (30 * 2, 30 * 2))
+
+HOLE_THREE = pygame.image.load(os.path.join("assets/images", "character-three.png"))
+HOLE_THREE = pygame.transform.scale(HOLE_THREE, (30 * 2, 30 * 2))
+
+HOLE_FOUR = pygame.image.load(os.path.join("assets/images", "character-four.png"))
+HOLE_FOUR = pygame.transform.scale(HOLE_FOUR, (30 * 2, 30 * 2))
+
 BG = pygame.image.load(os.path.join("assets/images", "background.png"))
 BG = pygame.transform.scale(BG, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -40,15 +49,25 @@ GAMEOVER_SCREEN = pygame.transform.scale(GAMEOVER_SCREEN, (SCREEN_WIDTH, SCREEN_
 OUT_TIME_SCREEN = pygame.image.load(os.path.join("assets/images", "out_time.png"))
 OUT_TIME_SCREEN = pygame.transform.scale(OUT_TIME_SCREEN, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+CHOOSE_CHARACTER = pygame.image.load(os.path.join("assets/images", "choose_hole.png"))
+CHOOSE_CHARACTER = pygame.transform.scale(CHOOSE_CHARACTER, (SCREEN_WIDTH, SCREEN_HEIGHT))
+
 play_btn = button.Button(370, 250, PLAY_BTN, 0.5)
 quit_btn = button.Button(370, 400, QUIT_BTN, 0.5)
 
 again_btn = button.Button(440, 350, AGAIN_BTN, 0.4)
 menu_btn = button.Button(240, 450, MENU_BTN, 0.4)
 
+character_one = button.Button(200, 350, HOLE_ONE, 2)
+character_two = button.Button(400, 350, HOLE_TWO, 2)
+character_three = button.Button(600, 350, HOLE_THREE, 2)
+character_four = button.Button(800, 350, HOLE_FOUR, 2)
+
+hole_selected = HOLE_ONE
+
 # Fonts
-font_large = pygame.font.Font(None, 72)
-font_small = pygame.font.Font(None, 36)
+font_large = pygame.font.SysFont("Helvetica", 72)
+font_small = pygame.font.SysFont("Helvetica", 36)
 
 # Game Global Variables
 pointsLevel = [10, 20, 30, 40, 50]
@@ -69,6 +88,10 @@ running = True
 game_over = False
 speed = 0
 
+def draw_text(text, font, text_col, x, y):
+  img = font.render(text, True, text_col)
+  SCREEN.blit(img, (x, y))
+
 def mainMenu():
         while True:
           pygame.event.get()
@@ -87,12 +110,40 @@ def mainMenu():
           SCREEN.blit(MAIN_MENU, (0, 0))
 
           if play_btn.draw(SCREEN):
-              game()
+            chooseCharacter()
+            
           if quit_btn.draw(SCREEN):
               pygame.quit()
               sys.exit()
 
           pygame.display.update()
+
+def chooseCharacter():
+    global  hole_selected
+    
+    while True:
+        pygame.event.get()
+        SCREEN.fill([255, 255, 255])
+        SCREEN.blit(CHOOSE_CHARACTER, (0, 0))
+        
+        if character_one.draw(SCREEN):
+            hole_selected = HOLE_ONE
+            game()
+            
+        if character_two.draw(SCREEN):
+            hole_selected = HOLE_TWO
+            game()
+            
+        if character_three.draw(SCREEN):
+            hole_selected = HOLE_THREE
+            game()
+            
+        if character_four.draw(SCREEN):
+            hole_selected = HOLE_FOUR
+            game()
+        
+        pygame.display.update()
+
           
 # Generate math problem
 def generate_math_problem():
@@ -196,17 +247,6 @@ def is_equation_complete():
 
     
 def update_scattered_numbers(scattered_numbers, screen_width, screen_height):
-    """
-    Updates the positions of scattered numbers, applying velocity and boundary collision logic.
-
-    Args:
-        scattered_numbers (list): List of tuples containing (x, y, n, is_correct, vx, vy).
-        screen_width (int): Width of the game screen.
-        screen_height (int): Height of the game screen.
-
-    Returns:
-        list: Updated scattered_numbers with new positions and velocities.
-    """
     updated_numbers = []
 
     for x, y, n, is_correct, vx, vy in scattered_numbers:
@@ -253,24 +293,41 @@ def gamOverScreen():
     global lives, speed
     # Display Game Over Screen
     SCREEN.fill([255, 255, 255])
-
-    if lives == 0:
-        SCREEN.blit(GAMEOVER_SCREEN, (0, 0))
-        if again_btn.draw(SCREEN):
-            reset_game()
-        if menu_btn.draw(SCREEN):
-            go_to_mainmenu()
-        speed = 0
+    SCREEN.blit(GAMEOVER_SCREEN, (0, 0))
+    
+    draw_text('Press R, To Play Again', font_small, (0, 0, 0), 400, 350)
+    draw_text('Press M, To Main Menu', font_small, (0, 0, 0), 400, 450)
+    
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_r]:
+        reset_game()
+    if keys[pygame.K_m]:
+        go_to_mainmenu()
+    speed = 0
 
     pygame.display.flip()
     
-
-# def outOfTimeScreen()
-
+def outOfTimeScreen():
+    global lives, speed
+    # Display Game Over Screen
+    SCREEN.fill([255, 255, 255])
+    SCREEN.blit(OUT_TIME_SCREEN, (0, 0))
+    
+    draw_text('Press R, To Play Again', font_small, (0, 0, 0), 400, 350)
+    draw_text('Press M, To Main Menu', font_small, (0, 0, 0), 400, 450)
+    
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_r]:
+        reset_game()
+    if keys[pygame.K_m]:
+        go_to_mainmenu()
+    speed = 0
+    pygame.display.flip()
+    
 def draw_popup(message):
     # Create a semi-transparent surface for the popup
-    popup_width = 500
-    popup_height = 200
+    popup_width = 700
+    popup_height = 250
     popup_surface = pygame.Surface((popup_width, popup_height), pygame.SRCALPHA)
     popup_surface.fill((0, 0, 0, 200))  # Black background with transparency
 
@@ -298,8 +355,8 @@ def nextLevelScreen():
 
           
 def game():
-    global game_over, lives, scattered_numbers, speed
-    
+    global game_over, lives, scattered_numbers, speed, hole_selected
+
     generate_math_problem()
     
     running = True
@@ -339,8 +396,7 @@ def game():
             SCREEN.blit(BG, (0, 0))
 
             # Draw the hole
-            SCREEN.blit(HOLE_ONE, (hole_pos[0] - hole_size, hole_pos[1] - hole_size))
-
+            SCREEN.blit(hole_selected, (hole_pos[0] - hole_size, hole_pos[1] - hole_size))
 
             # Update logic
             scattered_numbers = update_scattered_numbers(scattered_numbers, SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -368,15 +424,15 @@ def game():
                 nextLevelScreen()
                 
         else:
-            gamOverScreen()
+            if lives == 0:
+                gamOverScreen()
+            elif time_left == 0 and lives == 0:
+                outOfTimeScreen()
 
         # Update the display
         pygame.display.flip()
         pygame.time.delay(30)
-     
-
-
-
+    
 
 
 mainMenu()
