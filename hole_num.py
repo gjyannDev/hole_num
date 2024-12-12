@@ -6,6 +6,7 @@ import button
 
 # Initialize Pygame
 pygame.init()
+pygame.mixer.init()
 
 # Set up pygame display window
 pygame.display.set_caption("Math Puzzle Game")
@@ -52,6 +53,9 @@ OUT_TIME_SCREEN = pygame.transform.scale(OUT_TIME_SCREEN, (SCREEN_WIDTH, SCREEN_
 CHOOSE_CHARACTER = pygame.image.load(os.path.join("assets/images", "choose_hole.png"))
 CHOOSE_CHARACTER = pygame.transform.scale(CHOOSE_CHARACTER, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+# bg music
+bg_music = pygame.mixer.Sound(os.path.join("assets/sounds", 'bg_music.wav'))
+
 play_btn = button.Button(370, 250, PLAY_BTN, 0.5)
 quit_btn = button.Button(370, 400, QUIT_BTN, 0.5)
 
@@ -93,6 +97,9 @@ def draw_text(text, font, text_col, x, y):
   SCREEN.blit(img, (x, y))
 
 def mainMenu():
+        bg_music.play(-1)
+        bg_music.set_volume(0.6)
+    
         while True:
           pygame.event.get()
           
@@ -276,6 +283,7 @@ def go_to_mainmenu():
     
 def reset_game():
     global lives, level, game_over, speed
+    bg_music.play(-1)
     lives = 3
     level = 1
     game_over = False
@@ -292,6 +300,8 @@ def next_level():
 def gamOverScreen():
     global lives, speed
     # Display Game Over Screen
+    bg_music.stop()
+    
     SCREEN.fill([255, 255, 255])
     SCREEN.blit(GAMEOVER_SCREEN, (0, 0))
     
@@ -304,7 +314,7 @@ def gamOverScreen():
     if keys[pygame.K_m]:
         go_to_mainmenu()
     speed = 0
-
+    
     pygame.display.flip()
     
 def outOfTimeScreen():
@@ -356,7 +366,7 @@ def nextLevelScreen():
           
 def game():
     global game_over, lives, scattered_numbers, speed, hole_selected
-
+    
     generate_math_problem()
     
     running = True
